@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "mocks",
+    srcs = [
+        "bazel_client_mock.go",
+        "bazel_rule_mock.go",
+        "rule_provider_mock.go",
+    ],
+    importpath = "github.com/ewhauser/bazel-differ/mocks",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal",
+        "@com_github_golang_mock//gomock",
+    ],
+)

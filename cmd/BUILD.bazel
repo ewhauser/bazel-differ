@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "cmd",
+    srcs = [
+        "diff.go",
+        "generate_hashes.go",
+        "root.go",
+    ],
+    importpath = "github.com/ewhauser/bazel-differ/cmd",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal",
+        "@com_github_spf13_cobra//:cobra",
+    ],
+)

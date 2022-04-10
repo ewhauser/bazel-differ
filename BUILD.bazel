@@ -1,0 +1,46 @@
+# gazelle:prefix github.com/ewhauser/bazel-differ
+# gazelle:exclude sql
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+gazelle(
+    name = "gazelle",
+)
+
+# gazelle_ci is called from CI to verify the repo is up-to-date
+gazelle(
+    name = "gazelle_ci",
+    command = "fix",
+    extra_args = ["--mode=diff"],
+)
+
+gazelle(
+    name = "gazelle-update-repos",
+    args = [
+        "-from_file=go.mod",
+        "-to_macro=deps.bzl%go_dependencies",
+        "-prune",
+    ],
+    command = "update-repos",
+)
+
+sh_binary(
+    name = "buildifier",
+    srcs = select(
+        {
+            "@bazel_tools//src/conditions:darwin": ["@buildifier_osx//file"],
+            "@bazel_tools//src/conditions:linux": ["@buildifier//file"],
+        },
+        no_match_error = "Buildifier does not have a binary for your platform",
+    ),
+)
+
+sh_binary(
+    name = "buildozer",
+    srcs = select(
+        {
+            "@bazel_tools//src/conditions:darwin": ["@buildozer_osx//file"],
+            "@bazel_tools//src/conditions:linux": ["@buildozer//file"],
+        },
+        no_match_error = "Buildozer does not have a binary for your platform",
+    ),
+)

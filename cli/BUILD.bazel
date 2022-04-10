@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "cli",
+    srcs = ["main.go"],
+    importpath = "github.com/ewhauser/bazel-differ/bazel-differ",
+    visibility = ["//visibility:private"],
+    deps = ["//cmd"],
+)
+
+go_binary(
+    name = "bazel-differ",
+    embed = [":cli"],
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "cli_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/ewhauser/bazel-differ/cli",
+    visibility = ["//visibility:private"],
+    deps = ["//cmd"],
+)

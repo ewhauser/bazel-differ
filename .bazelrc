@@ -1,0 +1,6 @@
+build --workspace_status_command "tools/workspace_status.sh"
+build --noexperimental_convenience_symlinks
+build --java_runtime_version=remotejdk_11
+
+test --test_output=errors
+test:ci --jobs=3

@@ -1,0 +1,31 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "internal",
+    srcs = [
+        "bazel.go",
+        "bazel_client.go",
+        "bazel_rule.go",
+        "bazel_sourcefile_target.go",
+        "build.pb.go",
+        "filesystem.go",
+        "target_hashing_client.go",
+    ],
+    importpath = "github.com/ewhauser/bazel-differ/internal",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@org_golang_google_protobuf//proto",
+        "@org_golang_google_protobuf//reflect/protoreflect",
+        "@org_golang_google_protobuf//runtime/protoimpl",
+    ],
+)
+
+go_test(
+    name = "internal_test",
+    srcs = ["target_hashing_client_test.go"],
+    deps = [
+        ":internal",
+        "//mocks",
+        "@com_github_golang_mock//gomock",
+    ],
+)
