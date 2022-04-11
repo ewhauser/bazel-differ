@@ -1,0 +1,22 @@
+name: Bazel CI
+
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: test
+        run: bazel test //...
+      - name: build
+        run: bazel build //...
+      - name: compatibility tests
+        run: ./test.sh
