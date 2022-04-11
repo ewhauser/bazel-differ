@@ -1,22 +1,14 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
-go_library(
-    name = "cli",
-    srcs = ["main.go"],
-    importpath = "github.com/ewhauser/bazel-differ/bazel-differ",
-    visibility = ["//visibility:private"],
-    deps = ["//cmd"],
-)
-
 go_binary(
     name = "bazel-differ",
-    embed = [":cli"],
+    embed = [":cli_lib"],
     visibility = ["//visibility:public"],
 )
 
 go_binary(
     name = "bazel-differ-linux-amd64",
-    embed = [":cli"],
+    embed = [":cli_lib"],
     goarch = "amd64",
     goos = "linux",
     pure = "on",
@@ -26,7 +18,7 @@ go_binary(
 
 go_binary(
     name = "bazel-differ-linux-arm64",
-    embed = [":cli"],
+    embed = [":cli_lib"],
     goarch = "arm64",
     goos = "linux",
     pure = "on",
@@ -36,7 +28,7 @@ go_binary(
 
 go_binary(
     name = "bazel-differ-darwin-amd64",
-    embed = [":cli"],
+    embed = [":cli_lib"],
     goarch = "amd64",
     goos = "darwin",
     pure = "on",
@@ -46,10 +38,18 @@ go_binary(
 
 go_binary(
     name = "bazel-differ-darwin-arm64",
-    embed = [":cli"],
+    embed = [":cli_lib"],
     goarch = "arm64",
     goos = "darwin",
     pure = "on",
     static = "on",
     visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "cli_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/ewhauser/bazel-differ/cli",
+    visibility = ["//visibility:private"],
+    deps = ["//cmd"],
 )
