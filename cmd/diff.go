@@ -53,16 +53,17 @@ var diffCmd = &cobra.Command{
 
 func writeFile(targets map[string]bool, output string) {
 	file, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	defer file.Close()
 
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
 	}
 
+	defer file.Close()
+
 	datawriter := bufio.NewWriter(file)
 	defer datawriter.Flush()
 
-	for k, _ := range targets {
+	for k := range targets {
 		_, _ = datawriter.WriteString(k + "\n")
 	}
 }

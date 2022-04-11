@@ -52,10 +52,13 @@ var generateHashesCmd = &cobra.Command{
 
 func readSeedFile() map[string]bool {
 	readFile, err := os.Open(SeedFilepaths)
-	defer readFile.Close()
+
 	if err != nil {
 		panic(err)
 	}
+
+	defer readFile.Close()
+
 	fileScanner := bufio.NewScanner(readFile)
 	fileScanner.Split(bufio.ScanLines)
 	seedFilepaths := make(map[string]bool)

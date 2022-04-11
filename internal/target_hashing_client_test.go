@@ -263,6 +263,7 @@ func createRuleTarget(name string, inputs []string, digest string, ctrl *gomock.
 	return target
 }
 
+//nolint
 func createGeneratedTarget(name string, generatingRuleName string) *internal.Target {
 	generatingFileName := generatingRuleName + "_file"
 	target := &internal.Target{

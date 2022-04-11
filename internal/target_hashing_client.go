@@ -60,7 +60,7 @@ func (t targetHashingClient) GetImpactedTargets(startHashes map[string]string, e
 }
 
 func createSeedForFilepaths(filesys fs.FS, seedFilepaths []string) ([]byte, error) {
-	if seedFilepaths == nil || len(seedFilepaths) == 0 {
+	if len(seedFilepaths) == 0 {
 		return []byte{}, nil
 	}
 	buffer := bytes.NewBuffer([]byte{})
@@ -253,8 +253,7 @@ func getDigestForSourceTargetName(sourceTargetName string, bazelSourcefileTarget
 }
 
 func convertByteArrayToString(bytes []byte) string {
-	var hexChars []byte
-	hexChars = make([]byte, len(bytes)*2)
+	hexChars := make([]byte, len(bytes)*2)
 	for i := 0; i < len(bytes); i++ {
 		v := bytes[i] & 0xFF
 		hexChars[i*2] = HexArray[v>>4]

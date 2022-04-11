@@ -1,0 +1,97 @@
+name: create release binaries
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  linux:
+    name: create linux binaries
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: build amd64
+        run: |
+          set -eu
+          bazelisk build //:bazel-differ-linux-amd64
+          bazelisk run --run_under "cp -f " //cli:bazel-differ-linux-amd64 $(pwd)/bazel-differ-linux-amd64
+      - name: build arm64
+        run: |
+          set -eu
+          bazelisk build //:bazel-differ-linux-arm64
+          bazelisk run --run_under "cp -f " //cli:bazel-differ-linux-arm64 $(pwd)/bazel-differ-linux-arm64
+      - name: get release URL
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: get release version
+        id: release_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+      - name: upload linux amd64
+        id: upload-release-asset-linux-amd64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: bazel-differ-linux-amd64
+          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-linux-x86_64
+          asset_content_type: application/octet-stream
+      - name: upload linux arm64
+        id: upload-release-asset-linux-arm64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: bazel-differ-linux-arm64
+          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-linux-arm64
+          asset_content_type: application/octet-stream
+
+  mac:
+    name: create mac binaries
+    runs-on: macos-10.15
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: build amd64
+        run: |
+          set -eu
+          bazelisk build //cli:bazel-differ-darwin-amd64
+          bazelisk run --run_under "cp -f " //:bazel-differ-darwin-amd64 $(pwd)/bazel-differ-darwin-amd64
+      - name: build arm64
+        run: |
+          set -eu
+          bazelisk build //cli:bazel-differ-darwin-arm64
+          bazelisk run --run_under "cp -f " //:bazel-differ-darwin-arm64 $(pwd)/bazel-differ-darwin-arm64
+      - name: get release URL
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: get release version
+        id: release_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+      - name: upload darwin amd64
+        id: upload-release-asset-darwin-amd64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: bazel-differ-darwin-amd64
+          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-darwin-x86_64
+          asset_content_type: application/octet-stream
+      - name: upload darwin arm64
+        id: upload-release-asset-darwin-arm64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: bazel-differ-darwin-arm64
+          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-darwin-arm64
+          asset_content_type: application/octet-stream
