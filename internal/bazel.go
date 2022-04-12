@@ -24,9 +24,97 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
+
+// bazelNpmPath looks up a relative path to a binary from @bazel/bazel
+// This is used as an alternate resolution when no bazel binary is in the $PATH
+// When running from the @bazel/ibazel npm package, our binary is
+// /DIR/node_modules/@bazel/ibazel/bin/darwin_amd64/ibazel
+// We can find bazel in
+// /DIR/node_modules/@bazel/bazel-darwin_x64/bazel-0.28.0-darwin-x86_64
+func bazelNpmPath(ibazelBinPath string) (string, error) {
+	s := strings.Split(ibazelBinPath, "/")
+	for i := 0; i+4 < len(s); i++ {
+		prefix, nm, scope, pkg, dir, bin := s[0:i], s[i], s[i+1], s[i+2], s[i+3], s[i+4]
+		if nm == "node_modules" && scope == "@bazel" && pkg == "ibazel" && dir == "bin" {
+			// See mapping in release/npm/index.js - ibazel is named with "amd64" arch
+			// but @bazel/bazel uses node arch names
+			arch := strings.Replace(bin, "amd64", "x64", 1)
+			dir := strings.Join(append(prefix, nm, scope, "bazel-"+arch), "/")
+			// Find the bazel binary in the directory - it will have a version number in the name
+			// so we list all the files and find a bazel-*-$ARCH
+			if fd, err := os.Open(filepath.FromSlash(dir)); err == nil {
+				if names, err := fd.Readdirnames(0); err == nil {
+					for j := 0; j < len(names); j++ {
+						if strings.HasPrefix(names[j], "bazel-") {
+							return dir + "/" + names[j], nil
+						}
+					}
+				}
+			}
+		}
+	}
+	return "", errors.New("bazel binary not found in @bazel/bazel package")
+}
+
+// bazeliskNpmPath looks up a relative path to a binary from @bazel/bazelisk
+// This is used as an alternate resolution when no bazel binary is in the $PATH
+// When running from the @bazel/ibazel npm package, our binary is
+// /DIR/node_modules/@bazel/ibazel/bin/darwin_amd64/ibazel
+// We can find bazelisk in
+// /DIR/node_modules/@bazel/bazelisk/bazelizk-darwin_amd64
+func bazeliskNpmPath(ibazelBinPath string) (string, error) {
+	s := strings.Split(ibazelBinPath, "/")
+	for i := 0; i+4 < len(s); i++ {
+		prefix, nm, scope, pkg, dir, bin := s[0:i], s[i], s[i+1], s[i+2], s[i+3], s[i+4]
+		if nm == "node_modules" && scope == "@bazel" && pkg == "ibazel" && dir == "bin" {
+			var ext string
+			if strings.HasPrefix(bin, "windows_") {
+				ext = ".exe"
+			}
+			name := strings.Join(append(prefix, nm, scope, "bazelisk", "bazelisk-"+bin+ext), "/")
+			_, err := os.Stat(name)
+			if err != nil {
+				if !os.IsNotExist(err) {
+					return "", err
+				}
+				continue
+			}
+			return name, nil
+		}
+	}
+	return "", errors.New("bazelisk binary not found in @bazel/bazelisk package")
+}
+
+func findBazel() string {
+	// Frontend devs may have installed @bazel/bazelisk and @bazel/ibazel from npm
+	// If they also have bazelisk in the $PATH, we want to resolve this one, to avoid version skew
+	if npmPath, err := bazeliskNpmPath(filepath.ToSlash(os.Args[0])); err == nil {
+		return filepath.FromSlash(npmPath)
+	}
+	// Frontend devs may have installed @bazel/bazel and @bazel/ibazel from npm
+	// If they also have bazel in the $PATH, we want to resolve this one, to avoid version skew
+	if npmPath, err := bazelNpmPath(filepath.ToSlash(os.Args[0])); err == nil {
+		return filepath.FromSlash(npmPath)
+	}
+	// Check in $PATH for system-installed Bazelisk
+	if path, err := exec.LookPath("bazelisk"); err == nil {
+		return path
+	}
+	// Check in $PATH for system-installed Bazel
+	if path, err := exec.LookPath("bazel"); err == nil {
+		return path
+	}
+
+	// If we've fallen through to here, the lookup won't succeed.
+	// Return "bazel" so that we'll later fail with an error
+	//   exec: "bazel": executable file not found in $PATH
+	// which helps the user understand that we looked in the $PATH
+	return "bazel"
+}
 
 type Bazel interface {
 	SetArguments([]string)
@@ -58,6 +146,10 @@ type bazel struct {
 }
 
 func NewBazel(path string, workingDirectory string) Bazel {
+	if path == "" {
+		path = findBazel()
+	}
+
 	return &bazel{
 		path:             path,
 		workingDirectory: workingDirectory,
