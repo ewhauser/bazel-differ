@@ -33,12 +33,16 @@ jobs:
         id: get-revisions
         run: GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN  }} ./tools/diff-sha.sh
       - name: get-test-targets
-        run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o test_targets.txt
+        run: |
+          $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o test_targets.txt
+          bash -c '[[ ! -s test_targets.txt ]] && rm test_targets.txt || true'
       - name: run-test-targets
         if: hashFiles('test_targets.txt') != ''
         run: bazel test --target_pattern_file=test_targets.txt
       - name: get-build-targets
-        run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o build_targets.txt -v
+        run: |
+          $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o build_targets.txt -v
+          bash -c '[[ ! -s build_targets.txt ]] && rm build_targets.txt || true'
       - name: run-build-targets
         if: hashFiles('build_targets.txt') != ''
         run: bazel build --target_pattern_file=build_targets.txt
