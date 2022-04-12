@@ -38,7 +38,7 @@ jobs:
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: bazel-differ-linux-amd64
-          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-linux-x86_64
+          asset_name: bazel-differ-linux-x86_64
           asset_content_type: application/octet-stream
       - name: upload linux arm64
         id: upload-release-asset-linux-arm64
@@ -48,7 +48,7 @@ jobs:
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: bazel-differ-linux-arm64
-          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-linux-arm64
+          asset_name: bazel-differ-linux-arm64
           asset_content_type: application/octet-stream
 
   mac:
@@ -83,7 +83,7 @@ jobs:
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: bazel-differ-darwin-amd64
-          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-darwin-x86_64
+          asset_name: bazel-differ-darwin-x86_64
           asset_content_type: application/octet-stream
       - name: upload darwin arm64
         id: upload-release-asset-darwin-arm64
@@ -93,5 +93,5 @@ jobs:
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: bazel-differ-darwin-arm64
-          asset_name: bazel-differ-${{ steps.release_version.outputs.VERSION }}-darwin-arm64
+          asset_name: bazel-differ-darwin-arm64
           asset_content_type: application/octet-stream
