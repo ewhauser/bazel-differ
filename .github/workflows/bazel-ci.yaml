@@ -36,12 +36,12 @@ jobs:
         run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o test_targets.txt
       - name: run-test-targets
         if: hashFiles('test_targets.txt') != ''
-        run: bazel test --target_pattern_file=test_targets.txt || echo "No targets to run."
+        run: bazel test --target_pattern_file=test_targets.txt
       - name: get-build-targets
-        if: hashFiles('build_targets.txt') != ''
         run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o build_targets.txt -v
       - name: run-build-targets
-        run: bazel build --target_pattern_file=build_targets.txt || echo "No targets to run."
+        if: hashFiles('build_targets.txt') != ''
+        run: bazel build --target_pattern_file=build_targets.txt
       # Run tests
       - name: gazelle check
         run: bazel run //:gazelle_ci
