@@ -5,12 +5,14 @@ go_library(
     srcs = [
         "diff.go",
         "generate_hashes.go",
+        "get_targets.go",
         "root.go",
     ],
     importpath = "github.com/ewhauser/bazel-differ/cmd",
     visibility = ["//visibility:public"],
     deps = [
         "//internal",
+        "//internal/cache",
         "@com_github_spf13_cobra//:cobra",
     ],
 )

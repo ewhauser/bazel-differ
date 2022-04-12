@@ -28,7 +28,7 @@ func TestHashAllBazelTargets_ruleTargets(t *testing.T) {
 
 	bazelClient := mocks.NewMockBazelClient(ctrl)
 
-	bazelClient.EXPECT().QueryAllSourceFileTarget().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
+	bazelClient.EXPECT().QueryAllSourceFileTargets().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
 	bazelClient.EXPECT().QueryAllTargets().Return(defaultTargets, nil).AnyTimes()
 
 	targetHashingClient := internal.NewTargetHashingClient(bazelClient, fstest.MapFS{}, ruleProvider)
@@ -62,7 +62,7 @@ func TestHashAllBazelTargets_ruleTargets_seedFilepaths(t *testing.T) {
 
 	bazelClient := mocks.NewMockBazelClient(ctrl)
 
-	bazelClient.EXPECT().QueryAllSourceFileTarget().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
+	bazelClient.EXPECT().QueryAllSourceFileTargets().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
 	bazelClient.EXPECT().QueryAllTargets().Return(defaultTargets, nil).AnyTimes()
 
 	m := fstest.MapFS{
@@ -108,7 +108,7 @@ func TestHashAllBazelTargets_ruleTargets_ruleInputs(t *testing.T) {
 	rule4 := createRuleTarget("rule4", ruleInputs, "digest2", ctrl, ruleProvider)
 	defaultTargets = append(defaultTargets, rule4)
 
-	bazelClient.EXPECT().QueryAllSourceFileTarget().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
+	bazelClient.EXPECT().QueryAllSourceFileTargets().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
 	bazelClient.EXPECT().QueryAllTargets().Return(defaultTargets, nil).AnyTimes()
 
 	targetHashingClient := internal.NewTargetHashingClient(bazelClient, fstest.MapFS{}, ruleProvider)
@@ -152,7 +152,7 @@ func Test_hashAllBazelTargets_ruleTargets_ruleInputsWithSelfInput(t *testing.T) 
 	defaultTargets = append(defaultTargets, rule3)
 	rule4 := createRuleTarget("rule4", ruleInputs, "digest2", ctrl, ruleProvider)
 	defaultTargets = append(defaultTargets, rule4)
-	bazelClient.EXPECT().QueryAllSourceFileTarget().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
+	bazelClient.EXPECT().QueryAllSourceFileTargets().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
 	bazelClient.EXPECT().QueryAllTargets().Return(defaultTargets, nil).AnyTimes()
 
 	targetHashingClient := internal.NewTargetHashingClient(bazelClient, fstest.MapFS{}, ruleProvider)
@@ -190,7 +190,7 @@ func TestHashAllBazelTargets_generatedTargets(t *testing.T) {
 
 	bazelClient := mocks.NewMockBazelClient(ctrl)
 
-	bazelClient.EXPECT().QueryAllSourceFileTarget().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
+	bazelClient.EXPECT().QueryAllSourceFileTargets().Return(make(map[string]*internal.BazelSourceFileTarget), nil)
 	bazelClient.EXPECT().QueryAllTargets().Return([]*internal.Target{rule3, target, generator}, nil)
 	targetHashingClient := internal.NewTargetHashingClient(bazelClient, fstest.MapFS{}, ruleProvider)
 

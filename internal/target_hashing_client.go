@@ -10,9 +10,13 @@ import (
 
 var HexArray = []byte("0123456789abcdef")
 
+type CacheOptions struct {
+}
+
 type TargetHashingClient interface {
 	HashAllBazelTargetsAndSourcefiles(seedFilePaths map[string]bool) (map[string]string, error)
 	GetImpactedTargets(startHashes map[string]string, endHashes map[string]string) (map[string]bool, error)
+	GetNames(targets []*Target) map[string]bool
 }
 
 type targetHashingClient struct {
@@ -29,7 +33,8 @@ func NewTargetHashingClient(client BazelClient, filesystem fs.FS, ruleProvider R
 	}
 }
 
-func (t targetHashingClient) HashAllBazelTargetsAndSourcefiles(seedFilePaths map[string]bool) (map[string]string, error) {
+func (t targetHashingClient) HashAllBazelTargetsAndSourcefiles(seedFilePaths map[string]bool) (
+	map[string]string, error) {
 	bazelSourcefileTargets, err := t.bazelClient.QueryAllSourceFileTargets()
 	if err != nil {
 		return nil, err
@@ -57,6 +62,14 @@ func (t targetHashingClient) GetImpactedTargets(startHashes map[string]string, e
 		}
 	}
 	return impactedTargets, nil
+}
+
+func (t targetHashingClient) GetNames(targets []*Target) map[string]bool {
+	targetNames := make(map[string]bool, len(targets))
+	for _, target := range targets {
+		targetNames[getNameForTarget(target)] = true
+	}
+	return targetNames
 }
 
 func createSeedForFilepaths(filesys fs.FS, seedFilepaths []string) ([]byte, error) {

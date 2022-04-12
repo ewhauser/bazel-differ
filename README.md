@@ -2,14 +2,79 @@
 
 `bazel-differ` is a command line interface for Bazel that helps you do incremental builds across different Git versions. `bazel-differ` is a mostly a pure Go port of the excellent [bazel-diff](https://github.com/tinder/bazel-diff) and should be able to function as a drop-in replacement for most use cases.
 
+## CLI
+
+```console
+bazel-differ is a CLI tool to assist with doing differential Bazel builds
+
+Usage:
+  bazel-differ [command]
+
+Available Commands:
+  completion      Generate the autocompletion script for the specified shell
+  diff            Writes to a file the impacted targets between two Bazel graph JSON files
+  generate-hashes Writes to a file the SHA256 hashes for each Bazel Target in the provided workspace.
+  get-targets     Collects a set of a targets between the specified commit ranges
+  help            Help about any command
+
+Flags:
+  -z, --bazelCommandOptions string   Additional space separated Bazel command options used when invoking Bazel
+  -b, --bazelPath string             Path to Bazel binary
+  -y, --bazelStartupOptions string   Additional space separated Bazel client startup options used when invoking Bazel
+  -h, --help                         help for bazel-differ
+  -k, --keep_going bazel query       This flag controls if bazel query will be executed with the `--keep_going` flag or not. Disabling this flag allows you to catch configuration issues in your Bazel graph, but may not work for some Bazel setups. Defaults to `true` (default true)
+  -v, --verbose                      enables verbose output
+  -w, --workspacePath string         Path to Bazel workspace directory.
+
+Use "bazel-differ [command] --help" for more information about a command.
+```
+
+If you are using as a replacement for `bazel-diff`, then you will probably use the `generate-hashes` and `diff` commands. Alternatively, you can make use of the `get-targets` command to eliminate the need for an external shell script:
+
+```console
+Collects a set of a targets between the specified commit ranges. By default,
+the final set of targets is run through a Bazel query "set({{.Targets}})" which can be customized by the -q parameter.
+If you want to query all tests impacted for the given commit range, you can do:
+
+$ bazel-differ get-targets -w path/to/workspace -b $(which bazel) -s START_HASH -f FINAL_HASH -q 'kind(".*_test",set({{.Targets}}))' -o test_targets.txt
+
+Usage:
+  bazel-differ get-targets [flags]
+
+Flags:
+      --cache-dir string          Directory to cache hashes associated with commits
+  -f, --finalRevision string      The Git revision to use to generate the ending hashes
+  -h, --help                      help for get-targets
+      --nocache                   Disables hash caching (default false)
+  -o, --output string             Filepath to write the impacted Bazel targets to, newline separated
+  -q, --query string              The query template to use when querying for changed targets
+  -s, --startingRevision string   The Git revision to generate the ending hashes
+
+Global Flags:
+  -z, --bazelCommandOptions string   Additional space separated Bazel command options used when invoking Bazel
+  -b, --bazelPath string             Path to Bazel binary
+  -y, --bazelStartupOptions string   Additional space separated Bazel client startup options used when invoking Bazel
+  -k, --keep_going bazel query       This flag controls if bazel query will be executed with the `--keep_going` flag or not. Disabling this flag allows you to catch configuration issues in your Bazel graph, but may not work for some Bazel setups. Defaults to `true` (default true)
+  -v, --verbose                      enables verbose output
+  -w, --workspacePath string         Path to Bazel workspace directory.
+```
+
+Running the example above, then allows you to run:
+
+```console
+$ bazel test --target_pattern_file=test_targets.txt
+```
+
+By default, the hashes for a given Git revision are cached to disk so you can run multiple invocations of `get-target` without paying a penalty for recalculating the hashes every time.
+
 # FAQ
 
 1. Why did you port `bazel-diff`?
 
 A couple reasons:
 
-*  The projects I work with don't have any JVM dependencies so using `bazel-diff` was adding some additional build time I wanted to eliminate.
-* With the exception of the Bazel server itself, much of the tooling in the Bazel ecosystem is written in Go.
+* The projects I work with don't have any JVM dependencies so using `bazel-diff` was adding some additional build time we wanted to eliminate
+* We wanted to add a fair amount of functionality on top of `bazel-diff` and porting it to Go wasn't a huge lift. Most tooling in the Bazel ecosystem is written in Go (with the exception of the Bazel server)
 
 2. What are the differences from `bazel-diff`?
 

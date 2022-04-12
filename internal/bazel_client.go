@@ -1,18 +1,23 @@
 package internal
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+	"text/template"
 )
+
+const DEFAULT_QUERY_TEMPLATE = "set({{.Targets}})"
 
 //go:generate mockgen -destination=../mocks/bazel_client_mock.go -package=mocks github.com/ewhauser/bazel-differ/internal BazelClient
 type BazelClient interface {
 	QueryAllTargets() ([]*Target, error)
 	QueryAllSourceFileTargets() (map[string]*BazelSourceFileTarget, error)
+	QueryTarget(queryTemplate string, targets map[string]bool) ([]*Target, error)
 }
 
 type bazelClient struct {
@@ -52,6 +57,35 @@ func (b bazelClient) QueryAllSourceFileTargets() (m map[string]*BazelSourceFileT
 		return nil, err
 	}
 	return b.processBazelSourcefileTargets(targets, true)
+}
+
+func (b bazelClient) QueryTarget(queryTemplate string, targets map[string]bool) ([]*Target, error) {
+	var templateString = DEFAULT_QUERY_TEMPLATE
+	if queryTemplate != "" {
+		templateString = queryTemplate
+	}
+
+	tmpl, err := template.New("query").Parse(templateString)
+	if err != nil {
+		return nil, err
+	}
+
+	var targetKeys []string
+	for k := range targets {
+		targetKeys = append(targetKeys, k)
+	}
+
+	var tpl bytes.Buffer
+	data := struct {
+		Targets string
+	}{
+		Targets: strings.Join(targetKeys, " "),
+	}
+	err = tmpl.Execute(&tpl, data)
+	if err != nil {
+		return nil, err
+	}
+	return b.performBazelQuery(tpl.String())
 }
 
 func (b bazelClient) processBazelSourcefileTargets(targets []*Target,
@@ -103,6 +137,9 @@ func (b bazelClient) performBazelQuery(query string) ([]*Target, error) {
 	var cmd []string
 	if b.verbose {
 		cmd = append(cmd, "--bazelrc=/dev/null")
+	} else {
+		cmd = append(cmd, "--noshow_progress")
+		cmd = append(cmd, "--noshow_loading_progress")
 	}
 	//cmd = append(cmd, b.startupOptions...)
 	cmd = append(cmd, "--order_output=no")
