@@ -130,9 +130,7 @@ func (b bazelClient) performBazelQuery(query string) ([]*Target, error) {
 	}
 
 	var cmd []string
-	if b.verbose {
-		cmd = append(cmd, "--bazelrc=/dev/null")
-	} else {
+	if !b.verbose {
 		cmd = append(cmd, "--noshow_progress")
 		cmd = append(cmd, "--noshow_loading_progress")
 	}
