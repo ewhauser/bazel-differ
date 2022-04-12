@@ -37,13 +37,13 @@ jobs:
       - name: run-test-targets
         run: |
           cat test_targets.txt
-          bazel test --target_pattern_file=test_targets.txt
+          [[ -s test_targets.txt ]] && bazel test --target_pattern_file=test_targets.txt || echo "No targets to run."
       - name: get-build-targets
         run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -b $(which bazelisk) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o build_targets.txt
       - name: run-build-targets
         run: |
           cat build_targets.txt
-          bazel build --target_pattern_file=build_targets.txt
+          [[ -s build_targets.txt ]] && bazel build --target_pattern_file=build_targets.txt || echo "No targets to run."
       # Run tests
       - name: gazelle check
         run: bazel run //:gazelle_ci
