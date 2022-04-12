@@ -28,5 +28,7 @@ jobs:
         run: bazel test //...
       - name: build
         run: bazel build //...
+      - name: debug
+        run: find $(bazel info bazel-bin)
       - name: compatibility tests
         run: ./test.sh
