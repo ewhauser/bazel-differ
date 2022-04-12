@@ -3,9 +3,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/ewhauser/bazel-differ/internal"
-	"os"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var WorkspacePath string
