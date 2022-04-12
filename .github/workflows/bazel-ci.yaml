@@ -22,12 +22,31 @@ jobs:
             ~/.cache/bazel
           key: ${{ runner.os }}-${{ env.cache-name }}
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      # You won't do this in your build since you will likely use a prebuilt bazel-differ binary, but we
+      # need to bootstrap
+      - name: build
+        run: bazel build //cli:bazel-differ
+      # This section starts an example of how to use get-targets in your CI process
+      - name: Get revisions
+        id: get-revisions
+        run: GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN  }} ./tools/diff-sha.sh
+      - name: get-test-targets
+        run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -b $(which bazelisk) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o test_targets.txt
+      - name: run-test-targets
+        run: |
+          cat test_targets.txt
+          bazel test --target_pattern_file=test_targets.txt
+      - name: get-build-targets
+        run: $(bazel info bazel-bin)/cli/bazel-differ_/bazel-differ get-targets -w $(pwd) -b $(which bazelisk) -s ${{ steps.get-revisions.outputs.previous_sha }} -f ${{ steps.get-revisions.outputs.current_sha }} -o build_targets.txt
+      - name: run-build-targets
+        run: |
+          cat build_targets.txt
+          bazel build --target_pattern_file=build_targets.txt
+      # Run tests
       - name: gazelle check
         run: bazel run //:gazelle_ci
-      - name: test
-        run: bazel test //...
-      - name: build
-        run: bazel build //...
       - name: build bazel-diff
         run: bazel build //tools/bazel-diff/...
       - name: compatibility tests
