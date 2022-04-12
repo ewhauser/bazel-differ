@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/ewhauser/bazel-differ/internal"
 	"os"
 
@@ -20,37 +21,25 @@ var Verbose bool
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "bazel-differ",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "bazel-differ is a CLI tool to assist with doing differential Bazel builds",
+	Long:  `bazel-differ is a CLI tool to assist with doing differential Bazel builds`,
 }
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&WorkspacePath, "workspacePath", "w", "", "Path to Bazel workspace directory.")
 	rootCmd.PersistentFlags().StringVarP(&BazelPath, "bazelPath", "b", "", "Path to Bazel binary")
-	rootCmd.PersistentFlags().StringVarP(&StartingHashes, "startingHashes", "s", "",
-		"The path to the JSON file of target hashes for the initial revision. Run 'generate-hashes' to get this value.")
-	rootCmd.PersistentFlags().StringVarP(&FinalHashes, "finalHashes", "f", "",
-		"he path to the JSON file of target hashes for the final revision. Run 'generate-hashes' to get this value.")
-	rootCmd.PersistentFlags().StringVarP(&Output, "output", "o", "",
-		"Filepath to write the impacted Bazel targets to, "+
-			"newline separated")
 	rootCmd.PersistentFlags().StringVarP(&BazelStartupOptions, "bazelStartupOptions", "y", "",
 		"Additional space separated Bazel client startup options used when invoking Bazel")
 	rootCmd.PersistentFlags().StringVarP(&BazelCommandOptions, "bazelCommandOptions", "z", "",
 		"Additional space separated Bazel command options used when invoking Bazel")
-	rootCmd.PersistentFlags().BoolVarP(&KeepGoing, "keep_ooing", "k", true,
+	rootCmd.PersistentFlags().BoolVarP(&KeepGoing, "keep_going", "k", true,
 		"This flag controls if `bazel query` will be executed with the `--keep_going` flag or not. Disabling this flag allows you to catch configuration issues in your Bazel graph, but may not work for some Bazel setups. Defaults to `true`")
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "enables verbose output")
 }
 
 func GetBazelClient() internal.BazelClient {
 	return internal.NewBazelClient(internal.Filesystem, WorkspacePath, BazelPath, Verbose, KeepGoing,
-		DisplayElapsedTime,
+		displayElapsedTime,
 		BazelStartupOptions, BazelCommandOptions)
 }
 
@@ -59,6 +48,17 @@ func GetBazelClient() internal.BazelClient {
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
+		os.Exit(1)
+	}
+}
+
+func ExitIfError(err error, msg string) {
+	if msg == "" {
+		msg = "Error: "
+	}
+
+	if err != nil {
+		fmt.Printf("%s: %s \n", msg, err)
 		os.Exit(1)
 	}
 }

@@ -1,14 +1,10 @@
 package cmd
 
 import (
-	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ewhauser/bazel-differ/internal"
 	"github.com/spf13/cobra"
-	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -41,46 +37,23 @@ var diffCmd = &cobra.Command{
 		targetHasher := internal.NewTargetHashingClient(GetBazelClient(), internal.Filesystem,
 			internal.NewRuleProvider())
 
-		startingHashes := readHashFile(StartingHashes)
-		finalHashes := readHashFile(FinalHashes)
+		startingHashes, err := internal.ReadHashFile(StartingHashes)
+		ExitIfError(err, "")
+		finalHashes, err := internal.ReadHashFile(FinalHashes)
+		ExitIfError(err, "")
 		targets, err := targetHasher.GetImpactedTargets(startingHashes, finalHashes)
-		if err != nil {
-			panic(err)
-		}
-		writeFile(targets, Output)
+		ExitIfError(err, "")
+		internal.WriteTargetsFile(targets, Output)
 	},
-}
-
-func writeFile(targets map[string]bool, output string) {
-	file, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-
-	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
-	}
-
-	defer file.Close()
-
-	datawriter := bufio.NewWriter(file)
-	defer datawriter.Flush()
-
-	for k := range targets {
-		_, _ = datawriter.WriteString(k + "\n")
-	}
-}
-
-func readHashFile(filename string) map[string]string {
-	x := map[string]string{}
-	startingContent, err := ioutil.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal(startingContent, &x)
-	if err != nil {
-		panic(err)
-	}
-	return x
 }
 
 func init() {
 	rootCmd.AddCommand(diffCmd)
+	diffCmd.PersistentFlags().StringVarP(&StartingHashes, "startingHashes", "s", "",
+		"The path to the JSON file of target hashes for the initial revision. Run 'generate-hashes' to get this value.")
+	diffCmd.PersistentFlags().StringVarP(&FinalHashes, "finalHashes", "f", "",
+		"The path to the JSON file of target hashes for the final revision. Run 'generate-hashes' to get this value.")
+	diffCmd.PersistentFlags().StringVarP(&Output, "output", "o", "",
+		"Filepath to write the impacted Bazel targets to, "+
+			"newline separated")
 }

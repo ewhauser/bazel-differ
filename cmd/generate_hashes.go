@@ -2,19 +2,15 @@ package cmd
 
 import (
 	"bufio"
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/ewhauser/bazel-differ/internal"
-	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 var SeedFilepaths string
-var DisplayElapsedTime bool
+var displayElapsedTime bool
 
 // generateHashesCmd represents the generateHashes command
 var generateHashesCmd = &cobra.Command{
@@ -32,30 +28,18 @@ var generateHashesCmd = &cobra.Command{
 		}
 
 		hashes, err := targetHasher.HashAllBazelTargetsAndSourcefiles(seedfilePaths)
-		if err != nil {
-			panic(err)
-		}
+		ExitIfError(err, "")
 
-		var buffer bytes.Buffer
-		err = prettyEncode(hashes, &buffer)
-		if err != nil {
-			panic(err)
-		}
-
-		err = ioutil.WriteFile(args[0], buffer.Bytes(), 0644)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(buffer.String())
+		res, err := internal.WriteHashFile(args[0], hashes)
+		ExitIfError(err, "")
+		fmt.Println(res)
 	},
 }
 
 func readSeedFile() map[string]bool {
 	readFile, err := os.Open(SeedFilepaths)
 
-	if err != nil {
-		panic(err)
-	}
+	ExitIfError(err, fmt.Sprintf("Error reading seedfile: %s", SeedFilepaths))
 
 	defer readFile.Close()
 
@@ -68,20 +52,15 @@ func readSeedFile() map[string]bool {
 	return seedFilepaths
 }
 
-func prettyEncode(data interface{}, out io.Writer) error {
-	enc := json.NewEncoder(out)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(data); err != nil {
-		return err
-	}
-	return nil
-}
-
 func init() {
 	rootCmd.AddCommand(generateHashesCmd)
 	generateHashesCmd.Flags().StringVarP(&SeedFilepaths, "seed-filepaths", "", "",
 		"A text file containing a newline separated list of filepaths, "+
 			"each of these filepaths will be read and used as a seed for all targets.")
-	generateHashesCmd.Flags().BoolVarP(&DisplayElapsedTime, "displayElapsedTime", "d", false,
+	generateHashesCmd.Flags().BoolVarP(&displayElapsedTime, "displayElapsedTime", "d", false,
 		"This flag controls whether to print out elapsed time for bazel query and content hashing")
+	generateHashesCmd.PersistentFlags().StringVarP(&StartingHashes, "startingHashes", "s", "",
+		"The path to the JSON file of target hashes for the initial revision. Run 'generate-hashes' to get this value.")
+	generateHashesCmd.PersistentFlags().StringVarP(&FinalHashes, "finalHashes", "f", "",
+		"The path to the JSON file of target hashes for the final revision. Run 'generate-hashes' to get this value.")
 }

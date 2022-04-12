@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "cache",
+    srcs = [
+        "cache_manager.go",
+        "disk_cache.go",
+    ],
+    importpath = "github.com/ewhauser/bazel-differ/internal/cache",
+    visibility = ["//:__subpackages__"],
+    deps = ["//internal"],
+)

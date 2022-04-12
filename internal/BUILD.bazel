@@ -9,6 +9,8 @@ go_library(
         "bazel_sourcefile_target.go",
         "build.pb.go",
         "filesystem.go",
+        "git_client.go",
+        "io_utils.go",
         "target_hashing_client.go",
     ],
     importpath = "github.com/ewhauser/bazel-differ/internal",
