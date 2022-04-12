@@ -15,12 +15,12 @@ jobs:
       - name: build amd64
         run: |
           set -eu
-          bazelisk build //:bazel-differ-linux-amd64
+          bazelisk build //cli:bazel-differ-linux-amd64
           bazelisk run --run_under "cp -f " //cli:bazel-differ-linux-amd64 $(pwd)/bazel-differ-linux-amd64
       - name: build arm64
         run: |
           set -eu
-          bazelisk build //:bazel-differ-linux-arm64
+          bazelisk build //cli:bazel-differ-linux-arm64
           bazelisk run --run_under "cp -f " //cli:bazel-differ-linux-arm64 $(pwd)/bazel-differ-linux-arm64
       - name: get release URL
         id: get_release
@@ -61,12 +61,12 @@ jobs:
         run: |
           set -eu
           bazelisk build //cli:bazel-differ-darwin-amd64
-          bazelisk run --run_under "cp -f " //:bazel-differ-darwin-amd64 $(pwd)/bazel-differ-darwin-amd64
+          bazelisk run --run_under "cp -f " //cli:bazel-differ-darwin-amd64 $(pwd)/bazel-differ-darwin-amd64
       - name: build arm64
         run: |
           set -eu
           bazelisk build //cli:bazel-differ-darwin-arm64
-          bazelisk run --run_under "cp -f " //:bazel-differ-darwin-arm64 $(pwd)/bazel-differ-darwin-arm64
+          bazelisk run --run_under "cp -f " //cli:bazel-differ-darwin-arm64 $(pwd)/bazel-differ-darwin-arm64
       - name: get release URL
         id: get_release
         uses: bruceadams/get-release@v1.2.2
