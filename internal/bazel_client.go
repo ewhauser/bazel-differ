@@ -105,18 +105,13 @@ func (b bazelClient) processBazelSourcefileTargets(targets []*Target,
 				workingDirectory = b.workingDirectory
 			}
 
-			var sourceFileTarget, err = NewBazelSourceFileTarget(
-				sourceFile.GetName(),
-				digest.Sum(nil),
-				b.filesystem,
-				workingDirectory,
-			)
+			var sourceFileTarget, err = NewBazelSourceFileTarget(sourceFile.GetName(), digest.Sum(nil), workingDirectory)
 
 			if err != nil {
 				return nil, err
 			}
 
-			sourceTargets[*sourceFileTarget.GetName()] = &sourceFileTarget
+			sourceTargets[*sourceFileTarget.Name()] = &sourceFileTarget
 		}
 	}
 	return sourceTargets, nil

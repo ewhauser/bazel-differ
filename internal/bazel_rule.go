@@ -25,16 +25,16 @@ func NewRuleProvider() RuleProvider {
 
 //go:generate mockgen -destination=../mocks/bazel_rule_mock.go -package=mocks github.com/ewhauser/bazel-differ/internal BazelRule
 type BazelRule interface {
-	GetDigest() ([]byte, error)
-	GetRuleInputList() []string
-	GetName() string
+	Digest() ([]byte, error)
+	RuleInputList() []string
+	Name() string
 }
 
 type bazelRule struct {
 	rule *Rule
 }
 
-func (b *bazelRule) GetDigest() ([]byte, error) {
+func (b *bazelRule) Digest() ([]byte, error) {
 	buffer := bytes.NewBuffer([]byte{})
 	if b.rule.RuleClass != nil {
 		if _, err := buffer.Write([]byte(*b.rule.RuleClass)); err != nil {
@@ -62,7 +62,7 @@ func (b *bazelRule) GetDigest() ([]byte, error) {
 	return checksum[:], nil
 }
 
-func (b *bazelRule) GetRuleInputList() []string {
+func (b *bazelRule) RuleInputList() []string {
 	var ruleInputList []string
 	for _, ruleInput := range b.rule.RuleInput {
 		if strings.HasPrefix(ruleInput, "@") {
@@ -81,10 +81,10 @@ func (b *bazelRule) GetRuleInputList() []string {
 	return ruleInputList
 }
 
-func (b *bazelRule) GetName() string {
+func (b *bazelRule) Name() string {
 	return b.rule.GetName()
 }
 
-func (b *bazelRule) GetRuleClass() string {
+func (b *bazelRule) RuleClass() string {
 	return b.rule.GetRuleClass()
 }

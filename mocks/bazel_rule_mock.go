@@ -33,45 +33,45 @@ func (m *MockBazelRule) EXPECT() *MockBazelRuleMockRecorder {
 	return m.recorder
 }
 
-// GetDigest mocks base method.
-func (m *MockBazelRule) GetDigest() ([]byte, error) {
+// Digest mocks base method.
+func (m *MockBazelRule) Digest() ([]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDigest")
+	ret := m.ctrl.Call(m, "Digest")
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDigest indicates an expected call of GetDigest.
-func (mr *MockBazelRuleMockRecorder) GetDigest() *gomock.Call {
+// Digest indicates an expected call of Digest.
+func (mr *MockBazelRuleMockRecorder) Digest() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDigest", reflect.TypeOf((*MockBazelRule)(nil).GetDigest))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Digest", reflect.TypeOf((*MockBazelRule)(nil).Digest))
 }
 
-// GetName mocks base method.
-func (m *MockBazelRule) GetName() string {
+// Name mocks base method.
+func (m *MockBazelRule) Name() string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetName")
+	ret := m.ctrl.Call(m, "Name")
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
-// GetName indicates an expected call of GetName.
-func (mr *MockBazelRuleMockRecorder) GetName() *gomock.Call {
+// Name indicates an expected call of Name.
+func (mr *MockBazelRuleMockRecorder) Name() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetName", reflect.TypeOf((*MockBazelRule)(nil).GetName))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockBazelRule)(nil).Name))
 }
 
-// GetRuleInputList mocks base method.
-func (m *MockBazelRule) GetRuleInputList() []string {
+// RuleInputList mocks base method.
+func (m *MockBazelRule) RuleInputList() []string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRuleInputList")
+	ret := m.ctrl.Call(m, "RuleInputList")
 	ret0, _ := ret[0].([]string)
 	return ret0
 }
 
-// GetRuleInputList indicates an expected call of GetRuleInputList.
-func (mr *MockBazelRuleMockRecorder) GetRuleInputList() *gomock.Call {
+// RuleInputList indicates an expected call of RuleInputList.
+func (mr *MockBazelRuleMockRecorder) RuleInputList() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRuleInputList", reflect.TypeOf((*MockBazelRule)(nil).GetRuleInputList))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RuleInputList", reflect.TypeOf((*MockBazelRule)(nil).RuleInputList))
 }

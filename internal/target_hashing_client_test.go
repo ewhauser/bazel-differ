@@ -206,9 +206,9 @@ func TestHashAllBazelTargets_generatedTargets(t *testing.T) {
 
 	ruleProvider.EXPECT().GetRule(NameMatcher("rule1")).DoAndReturn(func(*internal.Rule) internal.BazelRule {
 		rule := mocks.NewMockBazelRule(ctrl)
-		rule.EXPECT().GetName().Return("rule1").AnyTimes()
-		rule.EXPECT().GetRuleInputList().Return([]string{}).AnyTimes()
-		rule.EXPECT().GetDigest().Return([]byte("newDigest"), nil).AnyTimes()
+		rule.EXPECT().Name().Return("rule1").AnyTimes()
+		rule.EXPECT().RuleInputList().Return([]string{}).AnyTimes()
+		rule.EXPECT().Digest().Return([]byte("newDigest"), nil).AnyTimes()
 		return rule
 	})
 
@@ -254,9 +254,9 @@ func createRuleTarget(name string, inputs []string, digest string, ctrl *gomock.
 
 	provider.EXPECT().GetRule(NameMatcher(name)).DoAndReturn(func(*internal.Rule) internal.BazelRule {
 		rule := mocks.NewMockBazelRule(ctrl)
-		rule.EXPECT().GetName().Return(name).AnyTimes()
-		rule.EXPECT().GetRuleInputList().Return(inputs).AnyTimes()
-		rule.EXPECT().GetDigest().Return([]byte(digest), nil).AnyTimes()
+		rule.EXPECT().Name().Return(name).AnyTimes()
+		rule.EXPECT().RuleInputList().Return(inputs).AnyTimes()
+		rule.EXPECT().Digest().Return([]byte(digest), nil).AnyTimes()
 		return rule
 	}).AnyTimes()
 

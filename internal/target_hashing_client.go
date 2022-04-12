@@ -189,12 +189,12 @@ func createDigestForRule(
 	bazelSourcefileTargets map[string]*BazelSourceFileTarget,
 	seedHash []byte,
 ) ([]byte, error) {
-	existingByteArray := ruleHashes[rule.GetName()]
+	existingByteArray := ruleHashes[rule.Name()]
 	if existingByteArray != nil {
 		return existingByteArray, nil
 	}
 	buffer := bytes.NewBuffer([]byte{})
-	ruleDigest, err := rule.GetDigest()
+	ruleDigest, err := rule.Digest()
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func createDigestForRule(
 			return nil, err
 		}
 	}
-	for _, ruleInput := range rule.GetRuleInputList() {
+	for _, ruleInput := range rule.RuleInputList() {
 		if _, err := buffer.Write([]byte(ruleInput)); err != nil {
 			return nil, err
 		}
@@ -216,7 +216,7 @@ func createDigestForRule(
 			return nil, err
 		}
 
-		if inputRule != nil && inputRule.GetName() != "" && !(inputRule.GetName() == rule.GetName()) {
+		if inputRule != nil && inputRule.Name() != "" && !(inputRule.Name() == rule.Name()) {
 			inputRuleHash, err := createDigestForRule(
 				inputRule,
 				allRulesMap,
@@ -240,7 +240,7 @@ func createDigestForRule(
 	}
 	checksum := sha256.Sum256(buffer.Bytes())
 	finalHashValue := checksum[:]
-	ruleHashes[rule.GetName()] = finalHashValue
+	ruleHashes[rule.Name()] = finalHashValue
 	return finalHashValue, nil
 }
 
@@ -262,7 +262,7 @@ func getDigestForSourceTargetName(sourceTargetName string, bazelSourcefileTarget
 	if !ok {
 		return nil, nil
 	}
-	return (*target).GetDigest(), nil
+	return (*target).Digest(), nil
 }
 
 func convertByteArrayToString(bytes []byte) string {
