@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
-	"io/fs"
 	"io/ioutil"
 	"os"
 	"path"
@@ -12,8 +11,8 @@ import (
 )
 
 type BazelSourceFileTarget interface {
-	GetName() *string
-	GetDigest() []byte
+	Name() *string
+	Digest() []byte
 }
 
 type bazelSourceFileTarget struct {
@@ -21,9 +20,7 @@ type bazelSourceFileTarget struct {
 	digest []byte
 }
 
-func NewBazelSourceFileTarget(name string, digest []byte, filesystem fs.FS,
-	workingDirectory string) (BazelSourceFileTarget,
-	error) {
+func NewBazelSourceFileTarget(name string, digest []byte, workingDirectory string) (BazelSourceFileTarget, error) {
 	finalDigest := bytes.NewBuffer([]byte{})
 	if workingDirectory != "" && strings.HasPrefix(name, "//") {
 		filenameSubstring := name[2:]
@@ -47,10 +44,10 @@ func NewBazelSourceFileTarget(name string, digest []byte, filesystem fs.FS,
 	}, nil
 }
 
-func (b *bazelSourceFileTarget) GetName() *string {
+func (b *bazelSourceFileTarget) Name() *string {
 	return b.name
 }
 
-func (b *bazelSourceFileTarget) GetDigest() []byte {
+func (b *bazelSourceFileTarget) Digest() []byte {
 	return b.digest
 }
