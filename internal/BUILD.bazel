@@ -11,6 +11,7 @@ go_library(
         "filesystem.go",
         "git_client.go",
         "io_utils.go",
+        "proto_delimited.go",
         "target_hashing_client.go",
     ],
     importpath = "github.com/ewhauser/bazel-differ/internal",
@@ -24,9 +25,15 @@ go_library(
 
 go_test(
     name = "internal_test",
-    srcs = ["target_hashing_client_test.go"],
+    srcs = [
+        "proto_delimited_test.go",
+        "target_hashing_client_test.go",
+    ],
+    data = [
+        "query.protodelim",  # keep
+    ],
+    embed = [":internal"],
     deps = [
-        ":internal",
         "//mocks",
         "@com_github_golang_mock//gomock",
     ],

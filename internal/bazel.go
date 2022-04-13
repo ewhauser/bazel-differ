@@ -18,8 +18,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"log"
 	"os"
@@ -122,7 +120,7 @@ type Bazel interface {
 	WriteToStderr(v bool)
 	WriteToStdout(v bool)
 	Info() (map[string]string, error)
-	Query(args ...string) (*QueryResult, error)
+	Query(args ...string) ([]*Target, error)
 	Build(args ...string) (*bytes.Buffer, error)
 	Test(args ...string) (*bytes.Buffer, error)
 	Run(args ...string) (*exec.Cmd, *bytes.Buffer, error)
@@ -286,8 +284,8 @@ func (b *bazel) processInfo(info string) (map[string]string, error) {
 // or to find a dependency path between //path/to/package:target and //dependency:
 //
 //   res, err := b.Query('somepath(//path/to/package:target, //dependency)')
-func (b *bazel) Query(args ...string) (*QueryResult, error) {
-	blazeArgs := append([]string(nil), "--output=proto", "--order_output=no", "--color=no")
+func (b *bazel) Query(args ...string) ([]*Target, error) {
+	blazeArgs := append([]string(nil), "--output=streamed_proto", "--order_output=no", "--color=no")
 	blazeArgs = append(blazeArgs, args...)
 
 	b.WriteToStderr(true)
@@ -302,14 +300,9 @@ func (b *bazel) Query(args ...string) (*QueryResult, error) {
 	return b.processQuery(stdoutBuffer.Bytes())
 }
 
-func (b *bazel) processQuery(out []byte) (*QueryResult, error) {
-	var qr QueryResult
-	if err := proto.Unmarshal(out, &qr); err != nil {
-		fmt.Fprintf(os.Stderr, "Could not read blaze query response. Error: %s\nOutput: %s\n", err, out)
-		return nil, err
-	}
-
-	return &qr, nil
+func (b *bazel) processQuery(out []byte) ([]*Target, error) {
+	reader := NewReader(bytes.NewReader(out))
+	return reader.ReadTargets()
 }
 
 func (b *bazel) Build(args ...string) (*bytes.Buffer, error) {

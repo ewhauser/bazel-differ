@@ -146,5 +146,5 @@ func (b bazelClient) performBazelQuery(query string) ([]*Target, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.Target, nil
+	return result, nil
 }
