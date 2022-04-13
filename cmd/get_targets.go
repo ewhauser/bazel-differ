@@ -13,6 +13,7 @@ var finalRevision string
 var query string
 var cacheDir string
 var cacheDisabled bool
+var outputOnEmpty bool
 
 // getTargets represents the get-targets command
 var getTargets = &cobra.Command{
@@ -43,6 +44,9 @@ $ bazel-differ get-targets -w path/to/workspace -b $(which bazel) -s START_HASH 
 		targetNames := targetHasher.GetNames(queriedTargets)
 
 		if Output != "" {
+			if len(targetNames) == 0 && !outputOnEmpty {
+				return
+			}
 			internal.WriteTargetsFile(targetNames, Output)
 		}
 
@@ -66,10 +70,11 @@ func getHashes(revision string, gitClient internal.GitClient, cacheManager cache
 
 	hashes, err := cacheManager.Get(context.Background(), revision)
 	ExitIfError(err, fmt.Sprintf("Error retrieving hashes for revision %s from cache", revision))
-
-	if hashes == nil {
-		hashes, err = targetHasher.HashAllBazelTargetsAndSourcefiles(seedfilePaths)
+	if hashes != nil {
+		return hashes
 	}
+
+	hashes, err = targetHasher.HashAllBazelTargetsAndSourcefiles(seedfilePaths)
 	ExitIfError(err, "")
 
 	err = cacheManager.Put(context.Background(), revision, hashes)
@@ -92,6 +97,8 @@ func init() {
 	getTargets.PersistentFlags().StringVarP(&Output, "output", "o", "",
 		"Filepath to write the impacted Bazel targets to, "+
 			"newline separated")
+	getTargets.PersistentFlags().BoolVar(&outputOnEmpty, "output-on-empty", true,
+		"Sets whether to write a file output when there are no results; useful for skipping targets in CI")
 	getTargets.PersistentFlags().StringVar(&cacheDir, "cache-dir", "",
 		"Directory to cache hashes associated with commits")
 	getTargets.PersistentFlags().BoolVar(&cacheDisabled, "nocache", false,

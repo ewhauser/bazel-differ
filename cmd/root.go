@@ -25,6 +25,11 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	WorkspacePath = cwd
 	rootCmd.PersistentFlags().StringVarP(&WorkspacePath, "workspacePath", "w", "", "Path to Bazel workspace directory.")
 	rootCmd.PersistentFlags().StringVarP(&BazelPath, "bazelPath", "b", "", "Path to Bazel binary")
 	rootCmd.PersistentFlags().StringVarP(&BazelStartupOptions, "bazelStartupOptions", "y", "",
