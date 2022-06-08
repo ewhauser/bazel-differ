@@ -134,7 +134,7 @@ func (b bazelClient) performBazelQuery(query string) ([]*Target, error) {
 		cmd = append(cmd, "--noshow_progress")
 		cmd = append(cmd, "--noshow_loading_progress")
 	}
-	//cmd = append(cmd, b.startupOptions...)
+	b.bazel.SetStartupArgs(b.startupOptions)
 	cmd = append(cmd, "--order_output=no")
 	if b.keepGoing {
 		cmd = append(cmd, "--keep_going")
