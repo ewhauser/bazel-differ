@@ -1,7 +1,6 @@
 package internal_test
 
 import (
-	"fmt"
 	"github.com/ewhauser/bazel-differ/internal"
 	"github.com/ewhauser/bazel-differ/mocks"
 	"github.com/golang/mock/gomock"
@@ -121,19 +120,19 @@ func TestHashAllBazelTargets_ruleTargets_ruleInputs(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(hash) != 4 {
-		t.Fatal(fmt.Sprintf("expected 4 hash values, got %d", len(hash)))
+		t.Fatalf("expected 4 hash values, got %d", len(hash))
 	}
 	if hash["rule1"] != "2c963f7c06bc1cead7e3b4759e1472383d4469fc3238dc42f8848190887b4775" {
-		t.Fatal(fmt.Sprintf("expected hash value for rule1 to be 2c963f7c06bc1cead7e3b4759e1472383d4469fc3238dc42f8848190887b4775, got %s", hash["rule1"]))
+		t.Fatalf("expected hash value for rule1 to be 2c963f7c06bc1cead7e3b4759e1472383d4469fc3238dc42f8848190887b4775, got %s", hash["rule1"])
 	}
 	if hash["rule2"] != "bdc1abd0a07103cea34199a9c0d1020619136ff90fb88dcc3a8f873c811c1fe9" {
-		t.Fatal(fmt.Sprintf("expected hash value for rule2 to be bdc1abd0a07103cea34199a9c0d1020619136ff90fb88dcc3a8f873c811c1fe9, got %s", hash["rule2"]))
+		t.Fatalf("expected hash value for rule2 to be bdc1abd0a07103cea34199a9c0d1020619136ff90fb88dcc3a8f873c811c1fe9, got %s", hash["rule2"])
 	}
 	if hash["rule3"] != "87dd050f1ca0f684f37970092ff6a02677d995718b5a05461706c0f41ffd4915" {
-		t.Fatal(fmt.Sprintf("expected hash value for rule3 to be 87dd050f1ca0f684f37970092ff6a02677d995718b5a05461706c0f41ffd4915, got %s", hash["rule3"]))
+		t.Fatalf("expected hash value for rule3 to be 87dd050f1ca0f684f37970092ff6a02677d995718b5a05461706c0f41ffd4915, got %s", hash["rule3"])
 	}
 	if hash["rule4"] != "a7bc5d23cd98c4942dc879c649eb9646e38eddd773f9c7996fa0d96048cf63dc" {
-		t.Fatal(fmt.Sprintf("expected hash value for rule4 to be a7bc5d23cd98c4942dc879c649eb9646e38eddd773f9c7996fa0d96048cf63dc, got %s", hash["rule4"]))
+		t.Fatalf("expected hash value for rule4 to be a7bc5d23cd98c4942dc879c649eb9646e38eddd773f9c7996fa0d96048cf63dc, got %s", hash["rule4"])
 	}
 }
 
