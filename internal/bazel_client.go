@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -118,7 +117,7 @@ func (b bazelClient) processBazelSourcefileTargets(targets []*Target,
 }
 
 func (b bazelClient) performBazelQuery(query string) ([]*Target, error) {
-	file, err := ioutil.TempFile("", ".txt")
+	file, err := os.CreateTemp("", ".txt")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -28,7 +27,7 @@ func NewBazelSourceFileTarget(name string, digest []byte, workingDirectory strin
 		sourceFile := path.Join(workingDirectory, filenamePath)
 		if _, err := os.Stat(sourceFile); !errors.Is(err, os.ErrNotExist) {
 			// path/to/whatever does not exist
-			contents, err := ioutil.ReadFile(sourceFile)
+			contents, err := os.ReadFile(sourceFile)
 			if err != nil {
 				return nil, err
 			}
