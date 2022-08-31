@@ -72,7 +72,7 @@ func (b bazelClient) QueryTarget(queryTemplate string, targets map[string]bool) 
 
 	var targetKeys []string
 	for k := range targets {
-		targetKeys = append(targetKeys, k)
+		targetKeys = append(targetKeys, "'"+k+"'")
 	}
 
 	var tpl bytes.Buffer
