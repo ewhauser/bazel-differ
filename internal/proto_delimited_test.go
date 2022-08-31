@@ -2,12 +2,12 @@ package internal
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
 func TestDelimitedReader(t *testing.T) {
-	protoBytes, err := ioutil.ReadFile("query.protodelim")
+	protoBytes, err := os.ReadFile("query.protodelim")
 	if err != nil {
 		t.Errorf("Error reading file")
 	}

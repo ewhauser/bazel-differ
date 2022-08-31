@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -30,7 +29,7 @@ func WriteTargetsFile(targets map[string]bool, output string) {
 
 func ReadHashFile(filename string) (map[string]string, error) {
 	x := map[string]string{}
-	startingContent, err := ioutil.ReadFile(filename)
+	startingContent, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, nil
 	}
@@ -54,7 +53,7 @@ func WriteHashFile(filename string, data interface{}) (string, error) {
 		return "", err
 	}
 
-	err = ioutil.WriteFile(filename, out.Bytes(), 0644)
+	err = os.WriteFile(filename, out.Bytes(), 0644)
 	if err != nil {
 		return "", err
 	}
