@@ -60,8 +60,8 @@ $ bazel-differ get-targets -w path/to/workspace -b $(which bazel) -s START_HASH 
 
 func getHashes(revision string, gitClient internal.GitClient, cacheManager cache.HashCacheManager,
 	targetHasher internal.TargetHashingClient) map[string]string {
-	err := gitClient.Checkout(revision)
-	ExitIfError(err, fmt.Sprintf("Unable to checkout revision: %s", revision))
+	output, err := gitClient.Checkout(revision)
+	ExitIfError(err, fmt.Sprintf("Unable to checkout revision: %s. %s", revision, output))
 
 	var seedfilePaths = make(map[string]bool)
 	if SeedFilepaths != "" {
