@@ -5,7 +5,7 @@ import (
 )
 
 type GitClient interface {
-	Checkout(hash string) string, error
+	Checkout(hash string) (string, error)
 }
 
 type gitClient struct {
@@ -18,8 +18,8 @@ func NewGitClient(dir string) GitClient {
 	}
 }
 
-func (g gitClient) Checkout(hash string) string, error {
+func (g gitClient) Checkout(hash string) (string, error) {
 	cmd := exec.Command("git", "-C", g.dir, "checkout", hash, "--quiet")
 	output, err := cmd.CombinedOutput()
-	return err
+	return string(output), err
 }
